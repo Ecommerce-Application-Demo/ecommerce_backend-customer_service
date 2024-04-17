@@ -15,10 +15,10 @@ WORKDIR /app
 
 # Copy the jar to the container
 
-COPY --from=DEPS /app/build/libs CustomerService.jar
+COPY --from=DEPS /app/build/libs /app/build
 
 # Expose the port that your Spring Boot application will run on
 EXPOSE 8500
 
 # Specify the command to run on container startup
-CMD ["java", "-jar", "/CustomerService.jar"]
+CMD ["java", "-jar", "/app/build/CustomerService.jar"]
