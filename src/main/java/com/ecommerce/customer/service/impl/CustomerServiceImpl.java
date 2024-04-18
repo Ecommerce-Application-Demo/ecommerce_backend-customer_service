@@ -69,7 +69,6 @@ public class CustomerServiceImpl implements CustomerService {
 	@Scheduled(fixedDelay = 1000*60*5)
 	 void renderRunner() {
 		RestTemplate restTemplate= new RestTemplate();
-		restTemplate.getForEntity("https://ecommerce-backend-dev.onrender.com/user/api/auth/index",String.class);
+		restTemplate.getForEntity("https://ecommerce-backend-customer-service.onrender.com/user/api/auth/index",String.class);
 	}
-
 }
