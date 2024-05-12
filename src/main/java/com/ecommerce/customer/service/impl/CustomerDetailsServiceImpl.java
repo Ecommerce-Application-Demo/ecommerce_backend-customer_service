@@ -66,6 +66,7 @@ public class CustomerDetailsServiceImpl implements CustomerDetailsService {
 	}
 
 	@Override
+	@Transactional
 	public Boolean changePassword(String password) throws CustomerException {
 		try {
 		String newPassword = password;
