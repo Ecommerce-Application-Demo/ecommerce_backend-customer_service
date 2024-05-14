@@ -10,7 +10,7 @@ public interface CustomerDetailsService {
 
 	CustomerDto customerDetails(String string);
 	Boolean passwordVerify(String password) throws CustomerException;
-	Boolean changePassword(String password) throws CustomerException;
+	String changePassword(String password) throws CustomerException;
 	String getUser() throws CustomerException;
 	List<AddressDto> getAddress() throws CustomerException;
 	AddressDto addAddress(AddressDto addressDto) throws CustomerException;

@@ -1,12 +1,21 @@
 package com.ecommerce.customer.controller;
 
-import java.security.Principal;
-
+import com.ecommerce.customer.dto.*;
+import com.ecommerce.customer.entity.StringInput;
+import com.ecommerce.customer.exception.CustomerException;
+import com.ecommerce.customer.security.JwtHelper;
+import com.ecommerce.customer.service.declaration.CustomerService;
+import com.ecommerce.customer.service.declaration.OtpService;
+import com.ecommerce.customer.service.declaration.RefreshTokenService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -15,20 +24,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
-import com.ecommerce.customer.dto.CustomerAuthDto;
-import com.ecommerce.customer.dto.CustomerDto;
-import com.ecommerce.customer.dto.JwtTokens;
-import com.ecommerce.customer.dto.OtpDetailsDto;
-import com.ecommerce.customer.entity.StringInput;
-import com.ecommerce.customer.exception.CustomerException;
-import com.ecommerce.customer.security.JwtHelper;
-import com.ecommerce.customer.service.declaration.CustomerService;
-import com.ecommerce.customer.service.declaration.RefreshTokenService;
-import com.ecommerce.customer.service.declaration.OtpService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
+
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -92,7 +89,7 @@ public class CustomerAuthController {
 							schema = @Schema(implementation = String.class))) })
 	@PostMapping("/validate")
 	public ResponseEntity<String> validateEmailOtp(@RequestBody OtpDetailsDto otpDetailsDto) {
-		boolean validated = otpService.validateOtp(otpDetailsDto);
+		boolean validated = otpService.validateOtp(otpDetailsDto.getEmail(),otpDetailsDto.getOtp());
 		if (validated) {
 			if(customerService.isPresent(otpDetailsDto.getEmail())) {
 				return new ResponseEntity<>(environment.getProperty("OTP.VALIDATED.REGISTERED"), HttpStatus.OK);
@@ -111,6 +108,9 @@ public class CustomerAuthController {
 					content = { @Content(mediaType = "application/json",
 							schema = @Schema(implementation = JwtTokens.class)) }),
 			@ApiResponse(responseCode = "400", description = "Invalid email/password format",
+					content = @Content(mediaType = "application/json",
+							schema = @Schema(implementation = String.class))),
+			@ApiResponse(responseCode = "422", description = "Email Id already in use. Try with another email.",
 					content = @Content(mediaType = "application/json",
 							schema = @Schema(implementation = String.class)))
 							})
@@ -153,6 +153,32 @@ public class CustomerAuthController {
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(environment.getProperty("INVALID.CREDENTIAL"), HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	@Operation(summary = "To change password when forgot password")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Password updated successfully.",
+					content = { @Content(mediaType = "application/json",
+							schema = @Schema(implementation = String.class)) }),
+			@ApiResponse(responseCode = "404", description = "OTP successfully validated but User is not registered.",
+					content = @Content(mediaType = "application/json",
+							schema = @Schema(implementation = String.class))),
+			@ApiResponse(responseCode = "400", description = "OTP is invalid or expired.",
+					content = @Content(mediaType = "application/json",
+							schema = @Schema(implementation = String.class))) })
+	@PutMapping("/forget-password")
+	public ResponseEntity<String> forgetPassword(@RequestBody ForgetPasswordDto forgetPasswordDto) throws CustomerException {
+		boolean validated = otpService.validateOtp(forgetPasswordDto.userEmail(),forgetPasswordDto.OTP());
+		if (validated) {
+			if(customerService.isPresent(forgetPasswordDto.userEmail())) {
+				return new ResponseEntity<>(customerService.forgetpassword(forgetPasswordDto.userEmail(),forgetPasswordDto.newPassword()),
+											HttpStatus.OK);
+			}else {
+				return new ResponseEntity<>(environment.getProperty("OTP.VALIDATED.NOT.REGISTERED"), HttpStatus.NOT_FOUND);
+			}
+		} else {
+			return new ResponseEntity<>(environment.getProperty("OTP.INVALID"), HttpStatus.BAD_REQUEST);
 		}
 	}
 

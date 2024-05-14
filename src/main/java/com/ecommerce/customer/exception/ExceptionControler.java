@@ -1,10 +1,8 @@
 package com.ecommerce.customer.exception;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.mail.MessagingException;
-import jakarta.servlet.ServletException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -16,8 +14,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.security.SignatureException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestControllerAdvice
 @Slf4j
@@ -64,13 +63,6 @@ public class ExceptionControler {
         }
 	
 	@ExceptionHandler
-	public ResponseEntity<String> servletException(ServletException ex) {
-		log.warn(ex.getMessage());
-		return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-
-	}
-	
-	@ExceptionHandler
 	public ResponseEntity<String> expiredJwtException(ExpiredJwtException ex) {
 		log.warn(ex.getMessage());
 		return new ResponseEntity<>(environment.getProperty("JWT.EXPIRED"), HttpStatus.FORBIDDEN);
@@ -79,7 +71,7 @@ public class ExceptionControler {
 	@ExceptionHandler
 	public ResponseEntity<String> jwtSignatureException(SignatureException ex) {
 		log.warn(ex.getMessage());
-		return new ResponseEntity<>(environment.getProperty("JWT.WRONG.SIGNATURE"), HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(environment.getProperty("JWT.WRONG.SIGNATURE"), HttpStatus.FORBIDDEN);
 	}
 
 	@ExceptionHandler
