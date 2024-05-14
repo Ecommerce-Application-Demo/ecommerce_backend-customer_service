@@ -50,11 +50,12 @@ BEGIN
 
   DELETE FROM jwt_refresh_token WHERE email = useremail;
 
+  DELETE FROM address WHERE user_id_email = useremail;
+  DELETE FROM default_address WHERE user_email = useremail;
+
   DELETE FROM customer_authentication WHERE email = useremail;
 
   DELETE FROM customer WHERE email=useremail;
 
-  DELETE FROM address WHERE user_id_email = useremail;
-  DELETE FROM default_address WHERE user_email = useremail;
 END;
 $BODY$;
