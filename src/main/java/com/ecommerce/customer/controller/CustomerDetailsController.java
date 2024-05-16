@@ -4,6 +4,7 @@ import com.ecommerce.customer.dto.AddressDto;
 import com.ecommerce.customer.dto.CustomerDto;
 import com.ecommerce.customer.entity.StringInput;
 import com.ecommerce.customer.exception.CustomerException;
+import com.ecommerce.customer.exception.ErrorResponse;
 import com.ecommerce.customer.security.LogoutService;
 import com.ecommerce.customer.service.declaration.CustomerDetailsService;
 import com.ecommerce.customer.service.declaration.RefreshTokenService;
@@ -56,7 +57,7 @@ public class CustomerDetailsController {
 							schema = @Schema(implementation = String.class)) }),
 			@ApiResponse(responseCode = "400", description = "Invalid/expired Refresh token",
 					content = @Content(mediaType = "application/json",
-							schema = @Schema(implementation = String.class)))
+							schema = @Schema(implementation = ErrorResponse.class)))
 							})
 	@PostMapping("/logout")
 	public ResponseEntity<String> logoutApi(@RequestBody @NotNull StringInput refreshToken,
@@ -166,7 +167,7 @@ public class CustomerDetailsController {
 							schema = @Schema(implementation = AddressDto.class)) }),
 			@ApiResponse(responseCode = "404", description = "Address Id Not Found",
 					content = @Content(mediaType = "application/json",
-							schema = @Schema(implementation = String.class)))
+							schema = @Schema(implementation = ErrorResponse.class)))
 	})
 	@PutMapping("/address")
 	public ResponseEntity<AddressDto> editAddress(@RequestBody @Valid AddressDto addressDto) throws CustomerException {
@@ -180,7 +181,7 @@ public class CustomerDetailsController {
 							schema = @Schema(implementation = String.class)) }),
 			@ApiResponse(responseCode = "404", description = "Address Id Not Found",
 					content = @Content(mediaType = "application/json",
-							schema = @Schema(implementation = String.class)))
+							schema = @Schema(implementation = ErrorResponse.class)))
 	})
 	@DeleteMapping("/address/{addId}")
 	public ResponseEntity<String> deleteAddress(@PathVariable("addId") @NotNull String addId) throws CustomerException {

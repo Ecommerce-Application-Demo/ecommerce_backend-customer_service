@@ -2,6 +2,7 @@ package com.ecommerce.customer.security;
 
 import com.ecommerce.customer.entity.Customer;
 import com.ecommerce.customer.entity.CustomerAuth;
+import com.ecommerce.customer.exception.ErrorCode;
 import com.ecommerce.customer.repository.CustomerAuthRepository;
 import com.ecommerce.customer.repository.CustomerRepository;
 import io.jsonwebtoken.Claims;
@@ -61,10 +62,10 @@ public class JwtHelper {
 		final String username = extractUserName(token);
 		CustomerAuth user=customerAuthRepository.findByEmail(username).get();
 		if(!user.getIsEnabled())
-			throw new  DisabledException("User is disabled");
+			throw new  DisabledException(ErrorCode.USER_DISABLED.name());
 		Claims claims= extractAllClaims(token);
 		if(!claims.containsValue(user.getLoginSalt()))
-			throw new ExpiredJwtException(null,null,"Provided JWT is expired");
+			throw new ExpiredJwtException(null,null,ErrorCode.JWT_EXPIRED.name());
 		return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
 	}
 

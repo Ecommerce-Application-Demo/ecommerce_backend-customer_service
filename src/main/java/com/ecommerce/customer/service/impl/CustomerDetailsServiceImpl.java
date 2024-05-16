@@ -7,6 +7,7 @@ import com.ecommerce.customer.entity.Customer;
 import com.ecommerce.customer.entity.CustomerAuth;
 import com.ecommerce.customer.entity.DefaultAddress;
 import com.ecommerce.customer.exception.CustomerException;
+import com.ecommerce.customer.exception.ErrorCode;
 import com.ecommerce.customer.repository.AddressRepository;
 import com.ecommerce.customer.repository.CustomerAuthRepository;
 import com.ecommerce.customer.repository.CustomerRepository;
@@ -15,7 +16,6 @@ import com.ecommerce.customer.service.declaration.CustomerDetailsService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -53,7 +53,7 @@ public class CustomerDetailsServiceImpl implements CustomerDetailsService {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             return authentication.getName();
         } else {
-            throw new CustomerException("CUSTOMER.NOT.FOUND", HttpStatus.NOT_FOUND);
+            throw new CustomerException(ErrorCode.USER_NOT_FOUND.name());
         }
     }
 
@@ -79,7 +79,7 @@ public class CustomerDetailsServiceImpl implements CustomerDetailsService {
             invalidateAllToken();
             return passwordSuccessMessage;
         } catch (Exception e) {
-            throw new CustomerException("PASSWORD.UPDATE.ERROR", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomerException(ErrorCode.PASSWORD_UPDATE_ERROR.name());
         }
     }
 
@@ -103,7 +103,7 @@ public class CustomerDetailsServiceImpl implements CustomerDetailsService {
             customerRepository.save(customer);
             return customerDto;
         } else {
-            throw new CustomerException("INVALID.USER.ID", HttpStatus.NOT_FOUND);
+            throw new CustomerException(ErrorCode.INVALID_USER_ID.name());
         }
     }
 
@@ -158,7 +158,7 @@ public class CustomerDetailsServiceImpl implements CustomerDetailsService {
             }
             return addressDto;
         } else {
-            throw new CustomerException("INVALID.ADDRESS.ID", HttpStatus.NOT_FOUND);
+            throw new CustomerException(ErrorCode.INVALID_ADDRESS_ID.name());
         }
     }
 
@@ -167,7 +167,7 @@ public class CustomerDetailsServiceImpl implements CustomerDetailsService {
         if (addressRepository.existsById(addId)) {
             addressRepository.deleteById(addId);
         } else {
-            throw new CustomerException("INVALID.ADDRESS.ID", HttpStatus.NOT_FOUND);
+            throw new CustomerException(ErrorCode.INVALID_ADDRESS_ID.name());
         }
     }
 

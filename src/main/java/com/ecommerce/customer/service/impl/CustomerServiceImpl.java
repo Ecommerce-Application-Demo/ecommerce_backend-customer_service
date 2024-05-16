@@ -1,7 +1,10 @@
 package com.ecommerce.customer.service.impl;
 
 import com.ecommerce.customer.dto.CustomerDto;
+import com.ecommerce.customer.entity.Customer;
+import com.ecommerce.customer.entity.CustomerAuth;
 import com.ecommerce.customer.exception.CustomerException;
+import com.ecommerce.customer.exception.ErrorCode;
 import com.ecommerce.customer.repository.CustomerAuthRepository;
 import com.ecommerce.customer.repository.CustomerRepository;
 import com.ecommerce.customer.service.declaration.CustomerService;
@@ -9,14 +12,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
-import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
-import com.ecommerce.customer.entity.CustomerAuth;
-import com.ecommerce.customer.entity.Customer;
 
 import java.util.UUID;
 
@@ -52,7 +52,7 @@ public class CustomerServiceImpl implements CustomerService {
 			customerAuth.setAuthCustomer(customer);
 			customerAuthRepository.save(customerAuth);
 		} else {
-			throw new CustomerException("EMAIL.ALREADY.EXISTS", HttpStatus.UNPROCESSABLE_ENTITY);
+			throw new CustomerException(ErrorCode.EMAIL_ALREADY_EXISTS.name());
 		}
 
 	}
@@ -77,7 +77,7 @@ public class CustomerServiceImpl implements CustomerService {
 			customerAuthRepository.invalidateTokens(email.toLowerCase(), UUID.randomUUID().toString().replace("-", ""));
 			return passwordSuccessMessage;
 		} catch (Exception e) {
-			throw new CustomerException("PASSWORD.UPDATE.ERROR", HttpStatus.INTERNAL_SERVER_ERROR);
+			throw new CustomerException(ErrorCode.PASSWORD_UPDATE_ERROR.name());
 		}
 	}
 

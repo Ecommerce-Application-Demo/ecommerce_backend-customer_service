@@ -7,10 +7,10 @@ import jakarta.validation.constraints.Pattern;
 public record ForgetPasswordDto(
         @NotNull
         int OTP,
-        @NotNull(message = "Email can not be blank")
-        @Pattern(regexp = Constants.EMAIL_REGEX, message = "Email pattern does not match!")
+        @NotNull(message = "EMAIL_NOT_BLANK")
+        @Pattern(regexp = Constants.EMAIL_REGEX, message = "INVALID_EMAIL")
         String userEmail,
-        @NotNull(message = "Password can not be null")
-        @Pattern(regexp = Constants.PASSWORD_REGEX, message = "Password must contain 8 or more character with atleast one uppercase,lowercase,special and number character")
+        @NotNull(message = "PASSWORD_NOT_BLANK")
+        @Pattern(regexp = Constants.PASSWORD_REGEX, message = "INVALID_PASSWORD")
         String newPassword) {
 }

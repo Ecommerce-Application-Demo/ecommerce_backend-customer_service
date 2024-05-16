@@ -3,6 +3,8 @@ package com.ecommerce.customer.controller;
 import com.ecommerce.customer.dto.*;
 import com.ecommerce.customer.entity.StringInput;
 import com.ecommerce.customer.exception.CustomerException;
+import com.ecommerce.customer.exception.ErrorCode;
+import com.ecommerce.customer.exception.ErrorResponse;
 import com.ecommerce.customer.security.JwtHelper;
 import com.ecommerce.customer.service.declaration.CustomerService;
 import com.ecommerce.customer.service.declaration.OtpService;
@@ -21,7 +23,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
@@ -67,7 +68,7 @@ public class CustomerAuthController {
 							schema = @Schema(implementation = String.class)) }),
 			@ApiResponse(responseCode = "400", description = "Invalid id supplied",
 					content = @Content(mediaType = "application/json",
-							schema = @Schema(implementation = String.class)))
+							schema = @Schema(implementation = ErrorResponse.class)))
 							})
 	@PostMapping("/generate")
 	public ResponseEntity<String> generateEmailOtp(@RequestBody @NotNull StringInput email) throws MessagingException {
@@ -86,9 +87,9 @@ public class CustomerAuthController {
 							schema = @Schema(implementation = String.class))),
 			@ApiResponse(responseCode = "400", description = "OTP is invalid or expired.",
 					content = @Content(mediaType = "application/json",
-							schema = @Schema(implementation = String.class))) })
+							schema = @Schema(implementation = ErrorResponse.class))) })
 	@PostMapping("/validate")
-	public ResponseEntity<String> validateEmailOtp(@RequestBody OtpDetailsDto otpDetailsDto) {
+	public ResponseEntity<String> validateEmailOtp(@RequestBody OtpDetailsDto otpDetailsDto) throws CustomerException {
 		boolean validated = otpService.validateOtp(otpDetailsDto.getEmail(),otpDetailsDto.getOtp());
 		if (validated) {
 			if(customerService.isPresent(otpDetailsDto.getEmail())) {
@@ -97,7 +98,7 @@ public class CustomerAuthController {
 				return new ResponseEntity<>(environment.getProperty("OTP.VALIDATED.NOT.REGISTERED"), HttpStatus.OK);
 			}
 		} else {
-			return new ResponseEntity<>(environment.getProperty("OTP.INVALID"), HttpStatus.BAD_REQUEST);
+			throw new CustomerException(ErrorCode.INVALID_OTP.name());
 		}
 	}
 
@@ -109,10 +110,10 @@ public class CustomerAuthController {
 							schema = @Schema(implementation = JwtTokens.class)) }),
 			@ApiResponse(responseCode = "400", description = "Invalid email/password format",
 					content = @Content(mediaType = "application/json",
-							schema = @Schema(implementation = String.class))),
+							schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = "422", description = "Email Id already in use. Try with another email.",
 					content = @Content(mediaType = "application/json",
-							schema = @Schema(implementation = String.class)))
+							schema = @Schema(implementation = ErrorResponse.class)))
 							})
 	@PostMapping("/register")
 	public ResponseEntity<Object> customerRegisterApi(@Valid @RequestBody CustomerDto customerDto)
@@ -127,7 +128,7 @@ public class CustomerAuthController {
 			JwtTokens response= new JwtTokens(jwtToken, refreshToken,refreshTokenService.extractExpiration(refreshToken),customerDto.getName(),customerDto.getEmail());
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		} else {
-			return new ResponseEntity<>(environment.getProperty("INVALID.CREDENTIAL"), HttpStatus.BAD_REQUEST);
+			throw new CustomerException(ErrorCode.INVALID_CREDENTIAL.name());
 		}
 	}
 
@@ -139,11 +140,11 @@ public class CustomerAuthController {
 							schema = @Schema(implementation = JwtTokens.class)) }),
 			@ApiResponse(responseCode = "400", description = "Invalid email/password",
 					content = @Content(mediaType = "application/json",
-							schema = @Schema(implementation = String.class)))
+							schema = @Schema(implementation = ErrorResponse.class)))
 							})
 	@PostMapping("/login")
 	public ResponseEntity<Object> customerLoginApi(@Valid @RequestBody CustomerAuthDto customerAuthDto)
-			throws BadCredentialsException, CustomerException {
+			throws  CustomerException {
 		if (authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(customerAuthDto.getEmail(), customerAuthDto.getPassword()))
 				.isAuthenticated()) {
@@ -152,7 +153,7 @@ public class CustomerAuthController {
 			JwtTokens response= new JwtTokens(jwtToken, refreshToken,refreshTokenService.extractExpiration(refreshToken),customerService.welcomeService(customerAuthDto.getEmail()),customerAuthDto.getEmail());
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		} else {
-			return new ResponseEntity<>(environment.getProperty("INVALID.CREDENTIAL"), HttpStatus.BAD_REQUEST);
+			throw new CustomerException(ErrorCode.INVALID_CREDENTIAL.name());
 		}
 	}
 
@@ -163,10 +164,10 @@ public class CustomerAuthController {
 							schema = @Schema(implementation = String.class)) }),
 			@ApiResponse(responseCode = "404", description = "OTP successfully validated but User is not registered.",
 					content = @Content(mediaType = "application/json",
-							schema = @Schema(implementation = String.class))),
+							schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = "400", description = "OTP is invalid or expired.",
 					content = @Content(mediaType = "application/json",
-							schema = @Schema(implementation = String.class))) })
+							schema = @Schema(implementation = ErrorResponse.class))) })
 	@PutMapping("/forget-password")
 	public ResponseEntity<String> forgetPassword(@RequestBody ForgetPasswordDto forgetPasswordDto) throws CustomerException {
 		boolean validated = otpService.validateOtp(forgetPasswordDto.userEmail(),forgetPasswordDto.OTP());
@@ -175,10 +176,10 @@ public class CustomerAuthController {
 				return new ResponseEntity<>(customerService.forgetpassword(forgetPasswordDto.userEmail(),forgetPasswordDto.newPassword()),
 											HttpStatus.OK);
 			}else {
-				return new ResponseEntity<>(environment.getProperty("OTP.VALIDATED.NOT.REGISTERED"), HttpStatus.NOT_FOUND);
+				throw new CustomerException(ErrorCode.USER_NOT_FOUND.name());
 			}
 		} else {
-			return new ResponseEntity<>(environment.getProperty("OTP.INVALID"), HttpStatus.BAD_REQUEST);
+			throw new CustomerException(ErrorCode.INVALID_OTP.name());
 		}
 	}
 
@@ -190,13 +191,13 @@ public class CustomerAuthController {
 							schema = @Schema(implementation = JwtTokens.class)) }),
 			@ApiResponse(responseCode = "400", description = "Invalid/Expired Token",
 					content = @Content(mediaType = "application/json",
-							schema = @Schema(implementation = String.class)))
+							schema = @Schema(implementation = ErrorResponse.class)))
 							})
 	@PostMapping("/jwt-token")
 	public ResponseEntity<JwtTokens> generateNewJwt(@RequestBody StringInput refreshToken) throws CustomerException {
 		String email = refreshTokenService.tokenValidation(refreshToken.getInput());
-		String newRefreshtoken = refreshTokenService.getRefreshToken(email);
-		JwtTokens response= new JwtTokens(jwtHelper.generateToken(email), newRefreshtoken, refreshTokenService.extractExpiration(newRefreshtoken),customerService.welcomeService(email) , email);
+		String newRefreshToken = refreshTokenService.getRefreshToken(email);
+		JwtTokens response= new JwtTokens(jwtHelper.generateToken(email), newRefreshToken, refreshTokenService.extractExpiration(newRefreshToken),customerService.welcomeService(email) , email);
 		refreshTokenService.deleteToken(refreshToken.getInput());
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}

@@ -3,13 +3,13 @@ package com.ecommerce.customer.service.impl;
 import com.ecommerce.customer.Constants;
 import com.ecommerce.customer.entity.JwtRefreshToken;
 import com.ecommerce.customer.exception.CustomerException;
+import com.ecommerce.customer.exception.ErrorCode;
 import com.ecommerce.customer.repository.RefreshTokenRepository;
 import com.ecommerce.customer.service.declaration.RefreshTokenService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +37,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 	
 	public JwtRefreshToken retrieveTokenFromDb(String token) throws CustomerException{
 		return refreshTokenRepository.findByToken(token)
-				.orElseThrow(() -> new CustomerException("TOKEN.NOT.FOUND", HttpStatus.BAD_REQUEST));
+				.orElseThrow(() -> new CustomerException(ErrorCode.TOKEN_NOT_FOUND.name()));
 	}
 	
 	@Override
@@ -51,7 +51,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 		if (refreshToken.getExpirationDate().isAfter(Instant.now())) {
 			return refreshToken.getEmail();
 		} else {
-			throw new CustomerException("TOKEN.EXPIRED", HttpStatus.FORBIDDEN);
+			throw new CustomerException(ErrorCode.TOKEN_NOT_FOUND.name());
 		}
 	}
 
