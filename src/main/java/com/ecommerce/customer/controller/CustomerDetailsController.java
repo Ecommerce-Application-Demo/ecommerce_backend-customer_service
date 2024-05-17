@@ -29,7 +29,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/my")
-@CrossOrigin
 @Tag(name = "Customer Details Controller : REST APIs")
 public class CustomerDetailsController {
 
