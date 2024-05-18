@@ -7,6 +7,7 @@ import com.ecommerce.customer.exception.CustomerException;
 import com.ecommerce.customer.exception.ErrorResponse;
 import com.ecommerce.customer.security.LogoutService;
 import com.ecommerce.customer.service.declaration.CustomerDetailsService;
+import com.ecommerce.customer.service.declaration.OtpService;
 import com.ecommerce.customer.service.declaration.RefreshTokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -42,6 +44,8 @@ public class CustomerDetailsController {
 	Environment environment;
 	@Autowired
 	LogoutService logoutService;
+	@Autowired
+	OtpService otpService;
 
 	@DeleteMapping("/delete-acc")
 	@Operation(summary = "To delete user account")
@@ -122,18 +126,37 @@ public class CustomerDetailsController {
 	public ResponseEntity<CustomerDto> editDetails(@RequestBody CustomerDto customerDto) throws CustomerException {
 		return new ResponseEntity<>(customerDetailsService.editDetails(customerDto), HttpStatus.OK);
 	}
+
+	@Operation(summary = "To generate Otp for email validation")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "OTP Sent",
+					content = { @Content(mediaType = "application/json",
+							schema = @Schema(implementation = String.class)) }),
+			@ApiResponse(responseCode = "400", description = "Invalid id supplied",
+					content = @Content(mediaType = "application/json",
+							schema = @Schema(implementation = ErrorResponse.class)))
+	})
+	@PostMapping("/generate")
+	public ResponseEntity<String> generateEmailOtp(@RequestBody @NotNull StringInput email) throws MessagingException {
+		Integer otp = otpService.generateOtp(email.getInput());
+		otpService.sendOtpByEmail(email.getInput(), otp.toString());
+		return new ResponseEntity<>(environment.getProperty("OTP.SENT") + email.getInput(), HttpStatus.OK);
+	}
+
 	
 	@Operation(summary = "To edit user email")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Email changed",
 					content = { @Content(mediaType = "application/json",
-							schema = @Schema(implementation = String.class)) })
+							schema = @Schema(implementation = String.class))}),
+			@ApiResponse(responseCode = "422", description = "Invalid id supplied",
+					content = @Content(mediaType = "application/json",
+							schema = @Schema(implementation = ErrorResponse.class)))
 	})
 	@PutMapping("/account/email")
-	public ResponseEntity<String> editEmail(@RequestParam(name = "newEmail",required = true) @NotNull String newEmail,
-											@RequestParam(name = "userId",required = true) Integer userId)
+	public ResponseEntity<String> editEmail(@RequestParam(name = "newEmail") @NotNull String newEmail)
 			throws CustomerException {
-		customerDetailsService.changeEmail(newEmail,userId);
+		customerDetailsService.changeEmail(newEmail);
 		return new ResponseEntity<>(environment.getProperty("EMAIL.CHANGED"),HttpStatus.OK);
 	}
 

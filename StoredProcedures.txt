@@ -8,13 +8,13 @@ BEGIN
   DELETE FROM jwt_refresh_token WHERE email = oldemail;
 
   -- Update customer authentication
-  UPDATE customer_authentication SET email = newemail WHERE user_id = userid;
+  UPDATE customer_authentication SET email = newemail WHERE email = oldemail;
 
   -- Update customer
-  UPDATE customer SET email=newemail WHERE user_id=userid;
+  UPDATE customer SET email=newemail WHERE email = oldemail;
 
   -- Update address and default address
-  UPDATE address SET user_id_email = newemail WHERE user_id = userid;
+  UPDATE address SET user_id_email = newemail WHERE user_id_email = oldemail;
   UPDATE default_address SET user_email = newemail WHERE user_email = oldemail;
 END;
 $BODY$;

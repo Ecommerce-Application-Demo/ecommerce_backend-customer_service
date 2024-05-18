@@ -13,6 +13,7 @@ import com.ecommerce.customer.repository.CustomerAuthRepository;
 import com.ecommerce.customer.repository.CustomerRepository;
 import com.ecommerce.customer.repository.DefaultAddressRepository;
 import com.ecommerce.customer.service.declaration.CustomerDetailsService;
+import com.ecommerce.customer.service.declaration.CustomerService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +47,8 @@ public class CustomerDetailsServiceImpl implements CustomerDetailsService {
     AddressRepository addressRepository;
     @Autowired
     DefaultAddressRepository defaultAddressRepository;
+    @Autowired
+    CustomerService customerService;
 
     @Override
     public String getUser() throws CustomerException {
@@ -108,9 +111,13 @@ public class CustomerDetailsServiceImpl implements CustomerDetailsService {
     }
 
     @Override
-    public void changeEmail(String email, Integer userId) throws CustomerException {
-        invalidateAllToken();
-        customerRepository.updateEmail(getUser(), email.toLowerCase(), userId);
+    public void changeEmail(String email) throws CustomerException {
+       if(!customerService.isPresent(email)) {
+           invalidateAllToken();
+           customerRepository.updateEmail(getUser(), email.toLowerCase());
+       }else{
+           throw new CustomerException(ErrorCode.EMAIL_ALREADY_EXISTS.name());
+       }
     }
 
     @Override

@@ -1,10 +1,10 @@
 package com.ecommerce.customer.service.declaration;
 
-import java.util.List;
-
 import com.ecommerce.customer.dto.AddressDto;
 import com.ecommerce.customer.dto.CustomerDto;
 import com.ecommerce.customer.exception.CustomerException;
+
+import java.util.List;
 
 public interface CustomerDetailsService {
 
@@ -18,6 +18,6 @@ public interface CustomerDetailsService {
 	CustomerDto editDetails(CustomerDto customerDto)throws CustomerException;
 	AddressDto editAddress(AddressDto addressDto) throws CustomerException;
 	void deleteAddress(int addId) throws CustomerException;
-	void changeEmail (String email, Integer userid) throws CustomerException;
+	void changeEmail (String email) throws CustomerException;
     Boolean invalidateAllToken() throws CustomerException;
 }

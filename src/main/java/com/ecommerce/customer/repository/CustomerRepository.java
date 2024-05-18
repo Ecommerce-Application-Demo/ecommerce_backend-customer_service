@@ -12,8 +12,8 @@ public interface CustomerRepository extends CrudRepository<Customer, Integer> {
 
 	@Transactional
 	@Modifying
-	@Query(value = "CALL customer.update_email(?1,?2,?3)",nativeQuery = true)
-	void updateEmail(String oldEmail,String newEmail,int userId);
+	@Query(value = "CALL customer.update_email(?1,?2)",nativeQuery = true)
+	void updateEmail(String oldEmail,String newEmail);
 
 	@Transactional
 	@Modifying
