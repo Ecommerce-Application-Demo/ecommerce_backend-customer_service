@@ -80,7 +80,7 @@ public class JwtHelper {
 
 	private String createToken(Map<String, Object> claims, String email) {
 		return Jwts.builder().setClaims(claims).setSubject(email.toLowerCase()).setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(new Date(System.currentTimeMillis() + JWT_VALIDITY))
+				.setExpiration(new Date(System.currentTimeMillis() + JWT_VALIDITY*1000))
 				.signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
 	}
 

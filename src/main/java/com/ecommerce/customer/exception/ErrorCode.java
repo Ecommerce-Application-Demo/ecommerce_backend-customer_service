@@ -14,8 +14,8 @@ public enum ErrorCode {
     EMAIL_ALREADY_EXISTS(422,116,"Email Id already in use. Try with another email."),
     PASSWORD_UPDATE_ERROR(500,119,"Could not change the password. Try again."),
 
-    TOKEN_NOT_FOUND(404,122, "Refresh token not found."),
-    TOKEN_EXPIRED(403,123,"Refresh Token is Expired."),
+    REFRESH_TOKEN_NOT_FOUND(404,122, "Refresh token not found."),
+    REFRESH_TOKEN_EXPIRED(403,123,"Refresh Token is Expired."),
     JWT_EXPIRED(401,125,"Provided JWT is Expired."),
     JWT_WRONG_SIGNATURE(401,126,"Provided JWT signature is not valid. Please provide valid JWT."),
 

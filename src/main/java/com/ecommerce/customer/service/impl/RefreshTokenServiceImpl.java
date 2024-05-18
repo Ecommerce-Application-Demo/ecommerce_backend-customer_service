@@ -30,14 +30,14 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 	@Override
 	public String getRefreshToken(String emailDto) {
         JwtRefreshToken newToken = new JwtRefreshToken(emailDto.toLowerCase(), UUID.randomUUID().toString(),
-				Instant.now().plusMillis(REFRESH_TOKEN_VALIDITY));
+				Instant.now().plusSeconds(REFRESH_TOKEN_VALIDITY));
 		refreshTokenRepository.save(newToken);
 		return newToken.getToken();
 	}
 	
 	public JwtRefreshToken retrieveTokenFromDb(String token) throws CustomerException{
 		return refreshTokenRepository.findByToken(token)
-				.orElseThrow(() -> new CustomerException(ErrorCode.TOKEN_NOT_FOUND.name()));
+				.orElseThrow(() -> new CustomerException(ErrorCode.REFRESH_TOKEN_NOT_FOUND.name()));
 	}
 	
 	@Override
@@ -51,7 +51,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 		if (refreshToken.getExpirationDate().isAfter(Instant.now())) {
 			return refreshToken.getEmail();
 		} else {
-			throw new CustomerException(ErrorCode.TOKEN_NOT_FOUND.name());
+			throw new CustomerException(ErrorCode.REFRESH_TOKEN_EXPIRED.name());
 		}
 	}
 
