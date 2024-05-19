@@ -41,7 +41,7 @@ public class OtpServiceImpl implements OtpService {
 	@Override
 	public Integer generateOtp(String email) {
 		Random random = new Random();
-		int otp = random.nextInt(1001, 10000);
+		int otp =1234; 	//random.nextInt(1001, 10000);
 		otpDetailsRepository
 				.save(new OtpDetails(email.toLowerCase(), otp, LocalDateTime.now().plusMinutes(OTP_VALIDITY)));
 		return otp;

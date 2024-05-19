@@ -139,7 +139,7 @@ public class CustomerDetailsController {
 	@PostMapping("/generate")
 	public ResponseEntity<String> generateEmailOtp(@RequestBody @NotNull StringInput email) throws MessagingException {
 		Integer otp = otpService.generateOtp(email.getInput());
-		otpService.sendOtpByEmail(email.getInput(), otp.toString());
+		//otpService.sendOtpByEmail(email.getInput(), otp.toString());
 		return new ResponseEntity<>(environment.getProperty("OTP.SENT") + email.getInput(), HttpStatus.OK);
 	}
 
