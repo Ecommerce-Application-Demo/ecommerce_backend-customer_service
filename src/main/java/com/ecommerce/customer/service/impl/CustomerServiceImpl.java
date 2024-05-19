@@ -11,12 +11,9 @@ import com.ecommerce.customer.service.declaration.CustomerService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.UUID;
 
@@ -81,10 +78,10 @@ public class CustomerServiceImpl implements CustomerService {
 		}
 	}
 
-	@Profile(value = "dev")
-	@Scheduled(fixedDelay = 1000*60*5)
-	 void renderRunner() {
-		RestTemplate restTemplate= new RestTemplate();
-		restTemplate.getForEntity("https://ecommerce-backend-customer-service.onrender.com/user/api/auth/index",String.class);
-	}
+//	@Profile(value = "dev")
+//	@Scheduled(fixedDelay = 1000*60*5)
+//	 void renderRunner() {
+//		RestTemplate restTemplate= new RestTemplate();
+//		restTemplate.getForEntity("https://ecommerce-backend-customer-service.onrender.com/user/api/auth/index",String.class);
+//	}
 }
