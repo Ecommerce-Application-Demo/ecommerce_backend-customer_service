@@ -60,7 +60,7 @@ public class JwtHelper {
 
 	public Boolean validateToken(String token) {
 		Claims claims= extractAllClaims(token);
-		return (!isTokenExpired(token) && redisTemplate.hasKey(claims.get("sessionKey").toString()));
+		return (!isTokenExpired(token) && Boolean.TRUE.equals(redisTemplate.hasKey(claims.get("sessionKey").toString())));
 	}
 
 	public String generateToken(String email) {
@@ -76,7 +76,7 @@ public class JwtHelper {
 
 	private String createToken(Map<String, Object> claims, String email) {
 		return Jwts.builder().setClaims(claims).setSubject(email.toLowerCase()).setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(new Date(System.currentTimeMillis() + JWT_VALIDITY*1000))
+				.setExpiration(new Date(System.currentTimeMillis() + JWT_VALIDITY* 1000L))
 				.signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
 	}
 
