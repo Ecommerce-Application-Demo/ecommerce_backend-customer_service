@@ -213,6 +213,7 @@ public class CustomerAuthController {
 	@Operation(summary = "Index unauthenticated api for testing")
 	@GetMapping("/index")
 	public String index() {
+		customerService.redisKeepAlive();
 		return "Welcome to Ecommerce Application!";
 	}
 }

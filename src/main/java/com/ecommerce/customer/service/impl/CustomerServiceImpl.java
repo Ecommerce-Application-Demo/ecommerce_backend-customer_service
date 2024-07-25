@@ -92,4 +92,10 @@ public class CustomerServiceImpl implements CustomerService {
 			throw new CustomerException(ErrorCode.PASSWORD_UPDATE_ERROR.name());
 		}
 	}
+
+	@Override
+	public void redisKeepAlive() {
+		redisTemplate.hasKey("a");
+
+	}
 }
