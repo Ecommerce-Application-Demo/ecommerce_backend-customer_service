@@ -24,7 +24,7 @@ import java.util.Set;
 public class CustomerServiceImpl implements CustomerService {
 
 	@Value("${PASSWORD.UPDATE.SUCCESS}")
-	String passwordSuccessMessage;
+	public String passwordSuccessMessage;
 
 	@Autowired
     CustomerRepository customerRepository;
