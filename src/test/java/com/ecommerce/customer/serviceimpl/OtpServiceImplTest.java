@@ -59,7 +59,6 @@ public class OtpServiceImplTest {
     @Test
     public void testValidateOtp_Valid() {
         when(otpRepository.findById(anyString())).thenReturn(Optional.of(otp));
-        //when(valueOperations.get(anyString())).thenReturn(1234);
 
         boolean result = otpService.validateOtp("test@example.com", 1234);
 

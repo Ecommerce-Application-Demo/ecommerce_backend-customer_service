@@ -32,7 +32,7 @@ The project replicates microservice architecture . It is **hosted on Render.com 
 This service use **PostgreSQL** for data storing and **Redis** for sessions.
 ![CustomerServiceDatabaseDesign.png](CustomerServiceDatabaseDesign.png)
 
-This Project has a code coverage of **92%** and is tested using JUnit and Mockito.
+This Project has a code coverage of **93%** and is tested using JUnit and Mockito.
 
 ![Jacoco Code Coverage&quot;](JacocoCodeCoverage.png)
 

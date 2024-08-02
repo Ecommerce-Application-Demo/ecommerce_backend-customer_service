@@ -7,6 +7,7 @@ import com.ecommerce.customer.entity.Customer;
 import com.ecommerce.customer.entity.CustomerAuth;
 import com.ecommerce.customer.entity.DefaultAddress;
 import com.ecommerce.customer.exception.CustomerException;
+import com.ecommerce.customer.exception.ErrorCode;
 import com.ecommerce.customer.repository.*;
 import com.ecommerce.customer.service.declaration.CustomerService;
 import com.ecommerce.customer.service.impl.CustomerDetailsServiceImpl;
@@ -110,7 +111,6 @@ public class CustomerDetailsServiceImplTest {
 
     @Test
     public void testGetUser_Authenticated() throws CustomerException {
-        // Mock SecurityContextHolder to return a valid Authentication object
         SecurityContext securityContext = mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -133,7 +133,6 @@ public class CustomerDetailsServiceImplTest {
 
     @Test
     public void testPasswordVerify() throws CustomerException {
-        // Mock SecurityContextHolder to return a valid Authentication object
         SecurityContext securityContext = mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -148,7 +147,6 @@ public class CustomerDetailsServiceImplTest {
 
     @Test
     public void testChangePassword() throws CustomerException {
-        // Mock SecurityContextHolder to return a valid Authentication object
         SecurityContext securityContext = mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -165,7 +163,6 @@ public class CustomerDetailsServiceImplTest {
 
     @Test
     public void testInvalidateAllToken() throws CustomerException {
-        // Mock SecurityContextHolder to return a valid Authentication object
         SecurityContext securityContext = mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -184,7 +181,6 @@ public class CustomerDetailsServiceImplTest {
 
     @Test
     public void testDeleteAcc() throws CustomerException {
-        // Mock SecurityContextHolder to return a valid Authentication object
         SecurityContext securityContext = mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -199,7 +195,7 @@ public class CustomerDetailsServiceImplTest {
     }
 
     @Test
-    public void testEditDetails() throws CustomerException {
+    public void testEditDetails_ValidUserId() throws CustomerException {
         when(customerRepository.existsById(anyInt())).thenReturn(true);
         when(modelMapper.map(any(CustomerDto.class), any(Class.class))).thenReturn(customer);
 
@@ -210,8 +206,19 @@ public class CustomerDetailsServiceImplTest {
     }
 
     @Test
-    public void testChangeEmail() throws CustomerException {
-        // Mock SecurityContextHolder to return a valid Authentication object
+    public void editDetails_InvalidUserId() {
+        when(modelMapper.map(any(CustomerDto.class), any(Class.class))).thenReturn(customer);
+        when(customerRepository.existsById(anyInt())).thenReturn(false);
+
+        CustomerException exception = assertThrows(CustomerException.class, () -> {
+            customerDetailsService.editDetails(customerDto);
+        });
+
+        assertEquals(ErrorCode.INVALID_USER_ID.name(), exception.getMessage());
+    }
+
+    @Test
+    public void testChangeEmail_EmailDoNotExist() throws CustomerException {
         SecurityContext securityContext = mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -226,8 +233,18 @@ public class CustomerDetailsServiceImplTest {
     }
 
     @Test
+    public void changeEmail_EmailExists() {
+        when(customerService.isPresent(anyString())).thenReturn(true);
+
+        CustomerException exception = assertThrows(CustomerException.class, () -> {
+            customerDetailsService.changeEmail("existing@example.com");
+        });
+
+        assertEquals(ErrorCode.EMAIL_ALREADY_EXISTS.name(), exception.getMessage());
+    }
+
+    @Test
     public void testAddAddress() throws CustomerException {
-        // Mock SecurityContextHolder to return a valid Authentication object
         SecurityContext securityContext = mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -246,7 +263,6 @@ public class CustomerDetailsServiceImplTest {
 
     @Test
     public void testGetAddress() throws CustomerException {
-        // Mock SecurityContextHolder to return a valid Authentication object
         SecurityContext securityContext = mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(authentication);
@@ -264,7 +280,6 @@ public class CustomerDetailsServiceImplTest {
 
     @Test
     public void testEditAddress() throws CustomerException {
-        // Mock SecurityContextHolder to return a valid Authentication object
         SecurityContext securityContext = mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContext);
         when(securityContext.getAuthentication()).thenReturn(authentication);

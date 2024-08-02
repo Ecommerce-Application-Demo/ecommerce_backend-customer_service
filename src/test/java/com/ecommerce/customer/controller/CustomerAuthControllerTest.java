@@ -123,6 +123,52 @@ public class CustomerAuthControllerTest {
     }
 
     @Test
+    public void validateEmailOtpV2_ValidOtpAndRegisteredUser() throws CustomerException {
+        when(otpService.validateOtp(anyString(), anyInt())).thenReturn(true);
+        when(customerService.isPresent(anyString())).thenReturn(true);
+        when(jwtHelper.generateToken(anyString())).thenReturn("jwtToken");
+        when(refreshTokenService.getRefreshToken(anyString())).thenReturn("refreshToken");
+        when(refreshTokenService.extractExpiration(anyString())).thenReturn(Instant.now().plusSeconds(300));
+        when(customerService.welcomeService(anyString())).thenReturn("Welcome Test User");
+
+        ResponseEntity response = customerAuthController.validateEmailOtpV2(new OtpDetailsDto("test@example.com", 1234));
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        OtpValidationResponse responseBody = (OtpValidationResponse) response.getBody();
+        assertNotNull(responseBody);
+        assertTrue(responseBody.getIsValid());
+        assertTrue(responseBody.getIsRegistered());
+        JwtTokens tokens = responseBody.getTokens();
+        assertNotNull(tokens);
+        assertEquals("jwtToken", tokens.getAccessToken());
+        assertEquals("refreshToken", tokens.getRefreshToken());
+    }
+
+    @Test
+    public void validateEmailOtpV2_ValidOtpAndUnregisteredUser() throws CustomerException {
+        when(otpService.validateOtp(anyString(), anyInt())).thenReturn(true);
+        when(customerService.isPresent(anyString())).thenReturn(false);
+
+        ResponseEntity response = customerAuthController.validateEmailOtpV2(new OtpDetailsDto("test@example.com", 1234));
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        OtpValidationResponse responseBody = (OtpValidationResponse) response.getBody();
+        assertNotNull(responseBody);
+        assertTrue(responseBody.getIsValid());
+        assertFalse(responseBody.getIsRegistered());
+        assertNull(responseBody.getTokens());
+    }
+
+    @Test
+    public void validateEmailOtpV2_InvalidOtp() throws CustomerException {
+        when(otpService.validateOtp(anyString(), anyInt())).thenReturn(false);
+
+        assertThrows(CustomerException.class, () -> {
+            customerAuthController.validateEmailOtpV2(new OtpDetailsDto("test@example.com", 1234));
+        });
+    }
+
+    @Test
     public void customerRegisterApi_ValidRegistration() throws CustomerException {
         CustomerDto customerDto = new CustomerDto();
         customerDto.setEmail("test@example.com");
