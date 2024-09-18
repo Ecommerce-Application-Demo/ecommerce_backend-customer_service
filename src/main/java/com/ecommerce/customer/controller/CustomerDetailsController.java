@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -33,13 +32,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/my")
 @SecurityRequirement(name = "Bearer Authentication")
-@Tag(name = "Customer Details Controller : REST APIs")
+@Tag(name = "2. Customer Details Controller : REST APIs")
 public class CustomerDetailsController {
 
 	@Autowired
 	CustomerDetailsService customerDetailsService;
-	@Autowired
-	AuthenticationManager authenticationManager;
 	@Autowired
 	RefreshTokenService refreshTokenService;
 	@Autowired

@@ -32,7 +32,7 @@ import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/auth")
-@Tag(name = "Customer-Authentication Controller : REST APIs") // http://localhost:8500/user/swagger-ui/index.html
+@Tag(name = "1. Customer-Authentication Controller : REST APIs") // http://localhost:8500/user/swagger-ui/index.html
 public class CustomerAuthController {
 
 	@Autowired
