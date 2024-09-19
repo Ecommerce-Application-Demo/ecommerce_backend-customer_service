@@ -61,7 +61,8 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
 		return http.cors(Customizer.withDefaults()).csrf(csrf -> csrf.disable())
-				.authorizeHttpRequests(req -> req.requestMatchers("/api/auth/welcome", "/api/my/**").authenticated())
+				.authorizeHttpRequests(req -> req.requestMatchers("/api/auth/welcome", "/api/my/**").authenticated()
+						.requestMatchers(publicURL).permitAll())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authenticationProvider(authenticationProvider())
 				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
